@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
-  runApp(const UniKonetApp());
+  runApp(const MyApp());
 }
 
-class UniKonetApp extends StatelessWidget {
-  const UniKonetApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +14,10 @@ class UniKonetApp extends StatelessWidget {
       title: 'uniKonet',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const SplashScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

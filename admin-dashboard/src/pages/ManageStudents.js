@@ -11,103 +11,161 @@ import {
     Paper,
     TextField,
     Box,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+    Grid,
+    Alert,
+    MenuItem
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
+// Mock initial data
 const initialStudents = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', programme: 'Computer Science', status: 'Active' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', programme: 'Engineering', status: 'Active' },
-    { id: 3, name: 'Alice Johnson', email: 'alice@example.com', programme: 'Business', status: 'Inactive' },
+    { id: 1, name: 'John Doe', email: 'john@ktu.edu.gh', programme: 'Computer Science' },
+    { id: 2, name: 'Jane Smith', email: 'jane@ktu.edu.gh', programme: 'Engineering' },
+];
+
+const programmes = [
+    'Computer Science',
+    'Information Technology',
+    'Computer Engineering',
+    'Electrical Engineering',
+    'Mechanical Engineering',
+    'Business Administration',
+    'Accounting'
 ];
 
 export default function ManageStudents() {
     const [students, setStudents] = useState(initialStudents);
-    const [search, setSearch] = useState('');
-    const [open, setOpen] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        programme: ''
+    });
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
-    const filteredStudents = students.filter((student) =>
-        student.name.toLowerCase().includes(search.toLowerCase())
-    );
-
-    const handleDelete = (id) => {
-        setStudents(students.filter((student) => student.id !== id));
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+
+        // Basic validation
+        if (!formData.name || !formData.email || !formData.programme) {
+            setError('All fields are required');
+            return;
+        }
+
+        if (!formData.email.includes('@')) {
+            setError('Please enter a valid email address');
+            return;
+        }
+
+        // Simulate API call
+        const newStudent = {
+            id: students.length + 1,
+            ...formData
+        };
+
+        setStudents([newStudent, ...students]);
+        setSuccess(`Successfully registered ${formData.name}`);
+        setFormData({ name: '', email: '', programme: '' });
+
+        // Auto-hide success message
+        setTimeout(() => setSuccess(''), 3000);
+    };
 
     return (
-        <div>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h4">Manage Students</Typography>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpen}>
-                    Add Student
-                </Button>
-            </Box>
+        <Box>
+            <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
+                Refister Students
+            </Typography>
 
-            <TextField
-                label="Search Students"
-                variant="outlined"
-                fullWidth
-                sx={{ mb: 3 }}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
+            {/* Registration Form */}
+            <Paper sx={{ p: 3, mb: 4 }}>
+                <Typography variant="h6" gutterBottom display="flex" alignItems="center">
+                    <PersonAddIcon sx={{ mr: 1 }} /> New Student Registration
+                </Typography>
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Full Name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Official School Email"
+                                name="email"
+                                type="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                helperText="e.g. name@ktu.edu.gh"
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                select
+                                label="Programme"
+                                name="programme"
+                                value={formData.programme}
+                                onChange={handleChange}
+                                required
+                            >
+                                {programmes.map((prog) => (
+                                    <MenuItem key={prog} value={prog}>
+                                        {prog}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12}>
+                            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+                            <Button variant="contained" type="submit" size="large">
+                                Register Student
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
 
+            {/* Students List */}
+            <Typography variant="h5" gutterBottom>
+                Registered Students
+            </Typography>
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
-                        <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Programme</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Actions</TableCell>
+                        <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                            <TableCell><strong>ID</strong></TableCell>
+                            <TableCell><strong>Name</strong></TableCell>
+                            <TableCell><strong>Official Email</strong></TableCell>
+                            <TableCell><strong>Programme</strong></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredStudents.map((student) => (
+                        {students.map((student) => (
                             <TableRow key={student.id}>
                                 <TableCell>{student.id}</TableCell>
                                 <TableCell>{student.name}</TableCell>
                                 <TableCell>{student.email}</TableCell>
                                 <TableCell>{student.programme}</TableCell>
-                                <TableCell>{student.status}</TableCell>
-                                <TableCell>
-                                    <IconButton color="primary" size="small">
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton color="error" size="small" onClick={() => handleDelete(student.id)}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
-
-            {/* Add Student Modal Placeholder */}
-            <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>Add New Student</DialogTitle>
-                <DialogContent>
-                    <TextField autoFocus margin="dense" label="Name" fullWidth variant="outlined" />
-                    <TextField margin="dense" label="Email" fullWidth variant="outlined" />
-                    <TextField margin="dense" label="Programme" fullWidth variant="outlined" />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleClose} variant="contained">Add</Button>
-                </DialogActions>
-            </Dialog>
-        </div>
+        </Box>
     );
 }

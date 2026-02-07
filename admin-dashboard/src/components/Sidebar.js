@@ -9,28 +9,19 @@ import {
   Toolbar,
   Divider,
   Box,
+  Typography
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import SchoolIcon from '@mui/icons-material/School';
-import ClassIcon from '@mui/icons-material/Class';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import CampaignIcon from '@mui/icons-material/Campaign';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Students', icon: <PeopleIcon />, path: '/students' },
-  { text: 'Lecturers', icon: <SchoolIcon />, path: '/lecturers' },
-  { text: 'Programmes & Courses', icon: <ClassIcon />, path: '/programmes' },
-  { text: 'Timetable', icon: <CalendarMonthIcon />, path: '/timetable' },
-  { text: 'Announcements', icon: <CampaignIcon />, path: '/announcements' },
-  { text: 'Attendance Reports', icon: <AssessmentIcon />, path: '/reports' },
-  { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+  { text: 'Register Students', icon: <PeopleIcon />, path: '/students' },
+  { text: 'Register Lecturers', icon: <SchoolIcon />, path: '/lecturers' },
 ];
 
 export default function Sidebar({ mobileOpen, handleDrawerToggle }) {
@@ -40,9 +31,9 @@ export default function Sidebar({ mobileOpen, handleDrawerToggle }) {
   const drawer = (
     <div>
       <Toolbar>
-        <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#1976d2' }}>
+        <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
           uniKonet Admin
-        </div>
+        </Typography>
       </Toolbar>
       <Divider />
       <List>
@@ -52,7 +43,7 @@ export default function Sidebar({ mobileOpen, handleDrawerToggle }) {
               selected={location.pathname === item.path}
               onClick={() => {
                 navigate(item.path);
-                if (mobileOpen) handleDrawerToggle(); // Close drawer on mobile selection
+                if (mobileOpen) handleDrawerToggle();
               }}
             >
               <ListItemIcon sx={{ color: location.pathname === item.path ? '#1976d2' : 'inherit' }}>
@@ -72,7 +63,6 @@ export default function Sidebar({ mobileOpen, handleDrawerToggle }) {
       sx={{ width: { sm: 240 }, flexShrink: { sm: 0 } }}
       aria-label="mailbox folders"
     >
-      {/* Mobile Drawer */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -85,7 +75,6 @@ export default function Sidebar({ mobileOpen, handleDrawerToggle }) {
       >
         {drawer}
       </Drawer>
-      {/* Desktop Drawer */}
       <Drawer
         variant="permanent"
         sx={{
