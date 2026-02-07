@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'change_password_screen.dart';
 import 'home_screen.dart';
 
@@ -15,10 +16,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final ApiService _apiService = ApiService();
   bool _isLoading = false;
   String? _errorMessage;
 
-  void _login() {
+  void _login() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -29,37 +31,38 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Simulate Network Delay
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
+    try {
+      final user = await _apiService.login(email, password);
 
-      setState(() => _isLoading = false);
-
-      // Mock Authentication Logic
-      bool isEmailValid = email.toLowerCase().contains("@ktu.edu.gh"); 
-      // In a real app, we would check more strictly if it's a student or lecturer email format if needed.
-
-      if (!isEmailValid) {
-        setState(() => _errorMessage = 'Invalid email domain. Use @ktu.edu.gh');
+      // Check role
+      if (user['role'].toLowerCase() != widget.role.toLowerCase()) {
+         setState(() {
+          _errorMessage = 'Invalid role access. Please login as ${user['role']}';
+          _isLoading = false;
+        });
         return;
       }
 
-      if (password == 'P@ass4ktu') {
-        // First time login - Force password change
+      if (!mounted) return;
+
+      if (user['isDefaultPassword']) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => ChangePasswordScreen(role: widget.role)),
         );
-      } else if (password.length >= 6) {
-        // Regular login success (Simulated if password is not default but valid length)
+      } else {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen(role: widget.role)),
         );
-      } else {
-        setState(() => _errorMessage = 'Invalid email or password');
       }
-    });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
+        _isLoading = false;
+      });
+    }
   }
 
   @override

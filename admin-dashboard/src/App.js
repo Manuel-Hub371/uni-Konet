@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -8,14 +8,23 @@ import Login from './pages/Login';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [checkingAuth, setCheckingAuth] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            setIsAuthenticated(true);
+        }
+        setCheckingAuth(false);
+    }, []);
 
     const handleLogin = () => {
         setIsAuthenticated(true);
     };
 
-    const handleLogout = () => {
-        setIsAuthenticated(false);
-    };
+    if (checkingAuth) {
+        return null; // Or a loading spinner
+    }
 
     return (
         <Router>

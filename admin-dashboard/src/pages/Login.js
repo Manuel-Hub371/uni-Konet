@@ -11,22 +11,37 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Avatar from '@mui/material/Avatar';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const Login = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
-        if (email === 'admin@ktu.edu.gh' && password === 'P@ass4ktuadmin') {
+        try {
+            const response = await api.post('/users/login', { email, password });
+
+            // Check if user is admin
+            if (response.data.role !== 'admin') {
+                setError('Access denied. Admin access only.');
+                setIsLoading(false);
+                return;
+            }
+
+            localStorage.setItem('token', response.data.token);
             onLogin();
             navigate('/');
-        } else {
-            setError('Invalid email or password');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Login failed. Please check your connection.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -82,8 +97,9 @@ const Login = ({ onLogin }) => {
                             fullWidth
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
+                            disabled={isLoading}
                         >
-                            Sign In
+                            {isLoading ? 'Signing in...' : 'Sign In'}
                         </Button>
                     </Box>
                 </Paper>

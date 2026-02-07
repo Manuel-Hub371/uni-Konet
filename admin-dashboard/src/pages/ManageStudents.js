@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Typography,
     Button,
@@ -13,15 +13,21 @@ import {
     Box,
     Grid,
     Alert,
-    MenuItem
+    MenuItem,
+    CircularProgress,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    InputAdornment,
+    IconButton,
+    Avatar
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-
-// Mock initial data
-const initialStudents = [
-    { id: 1, name: 'John Doe', email: 'john@ktu.edu.gh', programme: 'Computer Science' },
-    { id: 2, name: 'Jane Smith', email: 'jane@ktu.edu.gh', programme: 'Engineering' },
-];
+import SearchIcon from '@mui/icons-material/Search';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import CloseIcon from '@mui/icons-material/Close';
+import api from '../services/api';
 
 const programmes = [
     'Computer Science',
@@ -34,7 +40,11 @@ const programmes = [
 ];
 
 export default function ManageStudents() {
-    const [students, setStudents] = useState(initialStudents);
+    const [students, setStudents] = useState([]);
+    const [filteredStudents, setFilteredStudents] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [open, setOpen] = useState(false);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -42,130 +52,300 @@ export default function ManageStudents() {
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
+
+    useEffect(() => {
+        fetchStudents();
+    }, []);
+
+    useEffect(() => {
+        const lowercasedFilter = searchTerm.toLowerCase();
+        const filtered = students.filter(student =>
+            student.name.toLowerCase().includes(lowercasedFilter) ||
+            student.email.toLowerCase().includes(lowercasedFilter) ||
+            student.programme.toLowerCase().includes(lowercasedFilter)
+        );
+        setFilteredStudents(filtered);
+    }, [searchTerm, students]);
+
+    const fetchStudents = async () => {
+        setFetching(true);
+        try {
+            const response = await api.get('/users?role=student');
+            setStudents(response.data);
+            setFilteredStudents(response.data);
+        } catch (err) {
+            console.error('Failed to fetch students', err);
+        } finally {
+            setFetching(false);
+        }
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => {
+        setOpen(false);
+        setError('');
+        setSuccess('');
+        setFormData({ name: '', email: '', programme: '' });
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
+        setLoading(true);
 
-        // Basic validation
-        if (!formData.name || !formData.email || !formData.programme) {
-            setError('All fields are required');
-            return;
+        try {
+            const response = await api.post('/users', {
+                ...formData,
+                role: 'student'
+            });
+
+            const newStudent = response.data;
+            setStudents([...students, newStudent]);
+            setSuccess(`Successfully registered ${newStudent.name}`);
+
+            // Close dialog after short delay
+            setTimeout(() => {
+                handleClose();
+                setSuccess('');
+            }, 1500);
+
+        } catch (err) {
+            setError(err.response?.data?.message || 'Registration failed');
+        } finally {
+            setLoading(false);
         }
-
-        if (!formData.email.includes('@')) {
-            setError('Please enter a valid email address');
-            return;
-        }
-
-        // Simulate API call
-        const newStudent = {
-            id: students.length + 1,
-            ...formData
-        };
-
-        setStudents([newStudent, ...students]);
-        setSuccess(`Successfully registered ${formData.name}`);
-        setFormData({ name: '', email: '', programme: '' });
-
-        // Auto-hide success message
-        setTimeout(() => setSuccess(''), 3000);
     };
 
     return (
         <Box>
-            <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-                Refister Students
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: '#1A202C' }}>
+                        Students
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                        Manage all registered students here.
+                    </Typography>
+                </Box>
+                <Button
+                    variant="contained"
+                    startIcon={<PersonAddIcon />}
+                    onClick={handleOpen}
+                    sx={{
+                        bgcolor: '#6C63FF',
+                        '&:hover': { bgcolor: '#5a52d5' },
+                        borderRadius: 2,
+                        px: 3,
+                        py: 1.5,
+                        textTransform: 'none',
+                        fontWeight: 600
+                    }}
+                >
+                    Add Student
+                </Button>
+            </Box>
 
-            {/* Registration Form */}
-            <Paper sx={{ p: 3, mb: 4 }}>
-                <Typography variant="h6" gutterBottom display="flex" alignItems="center">
-                    <PersonAddIcon sx={{ mr: 1 }} /> New Student Registration
-                </Typography>
-                <form onSubmit={handleSubmit}>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} md={4}>
-                            <TextField
-                                fullWidth
-                                label="Full Name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={4}>
-                            <TextField
-                                fullWidth
-                                label="Official School Email"
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                                helperText="e.g. name@ktu.edu.gh"
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={4}>
-                            <TextField
-                                fullWidth
-                                select
-                                label="Programme"
-                                name="programme"
-                                value={formData.programme}
-                                onChange={handleChange}
-                                required
-                            >
-                                {programmes.map((prog) => (
-                                    <MenuItem key={prog} value={prog}>
-                                        {prog}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                        </Grid>
-                        <Grid item xs={12}>
-                            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-                            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
-                            <Button variant="contained" type="submit" size="large">
-                                Register Student
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </form>
+            {/* Search and Filter Bar */}
+            <Paper
+                elevation={0}
+                sx={{
+                    p: 2,
+                    mb: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderRadius: 3,
+                    border: '1px solid #E2E8F0'
+                }}
+            >
+                <TextField
+                    placeholder="Search by name, email, or programme..."
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon color="action" />
+                            </InputAdornment>
+                        ),
+                        sx: { borderRadius: 2, bgcolor: '#F7FAFC' }
+                    }}
+                    sx={{ mr: 2 }}
+                />
+                <Button
+                    startIcon={<RefreshIcon />}
+                    onClick={fetchStudents}
+                    sx={{
+                        textTransform: 'none',
+                        borderRadius: 2,
+                        color: '#718096',
+                        minWidth: 100
+                    }}
+                >
+                    Refresh
+                </Button>
             </Paper>
 
-            {/* Students List */}
-            <Typography variant="h5" gutterBottom>
-                Registered Students
-            </Typography>
-            <TableContainer component={Paper}>
+            {/* Students List Table */}
+            <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 3, border: '1px solid #E2E8F0' }}>
                 <Table>
                     <TableHead>
-                        <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                            <TableCell><strong>ID</strong></TableCell>
-                            <TableCell><strong>Name</strong></TableCell>
-                            <TableCell><strong>Official Email</strong></TableCell>
-                            <TableCell><strong>Programme</strong></TableCell>
+                        <TableRow sx={{ bgcolor: '#F7FAFC' }}>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Name</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Email</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Programme</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Status</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {students.map((student) => (
-                            <TableRow key={student.id}>
-                                <TableCell>{student.id}</TableCell>
-                                <TableCell>{student.name}</TableCell>
-                                <TableCell>{student.email}</TableCell>
-                                <TableCell>{student.programme}</TableCell>
+                        {fetching ? (
+                            <TableRow>
+                                <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
+                                    <CircularProgress size={30} />
+                                </TableCell>
                             </TableRow>
-                        ))}
+                        ) : filteredStudents.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={4} align="center" sx={{ py: 5, color: '#718096' }}>
+                                    {searchTerm ? 'No matching students found.' : 'No students registered yet.'}
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            filteredStudents.map((student) => (
+                                <TableRow
+                                    key={student._id}
+                                    sx={{ '&:hover': { bgcolor: '#F9FAFB' } }}
+                                >
+                                    <TableCell>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Avatar sx={{ width: 32, height: 32, mr: 2, bgcolor: '#6C63FF', fontSize: 14 }}>
+                                                {student.name.charAt(0)}
+                                            </Avatar>
+                                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                {student.name}
+                                            </Typography>
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell>{student.email}</TableCell>
+                                    <TableCell>
+                                        <Box
+                                            sx={{
+                                                display: 'inline-block',
+                                                bgcolor: '#EBF8FF',
+                                                color: '#3182CE',
+                                                px: 1.5,
+                                                py: 0.5,
+                                                borderRadius: 1,
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            {student.programme}
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                width: 8,
+                                                height: 8,
+                                                borderRadius: '50%',
+                                                bgcolor: '#48BB78',
+                                                display: 'inline-block',
+                                                mr: 1
+                                            }}
+                                        />
+                                        Active
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            {/* Add Student Modal */}
+            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    Register New Student
+                    <IconButton onClick={handleClose} size="small">
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <form onSubmit={handleSubmit}>
+                    <DialogContent dividers>
+                        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    label="Full Name"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    label="Official School Email"
+                                    name="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    helperText="e.g. name@ktu.edu.gh"
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Programme"
+                                    name="programme"
+                                    value={formData.programme}
+                                    onChange={handleChange}
+                                    required
+                                    variant="outlined"
+                                >
+                                    {programmes.map((prog) => (
+                                        <MenuItem key={prog} value={prog}>
+                                            {prog}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions sx={{ p: 3 }}>
+                        <Button onClick={handleClose} color="inherit">
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={loading}
+                            sx={{ bgcolor: '#6C63FF', '&:hover': { bgcolor: '#5a52d5' } }}
+                        >
+                            {loading ? 'Registering...' : 'Register Student'}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
         </Box>
     );
 }

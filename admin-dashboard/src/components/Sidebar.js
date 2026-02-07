@@ -3,88 +3,138 @@ import {
   Drawer,
   List,
   ListItem,
-  ListItemButton,
   ListItemIcon,
   ListItemText,
   Toolbar,
   Divider,
   Box,
-  Typography
+  Typography,
+  Avatar
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
 import SchoolIcon from '@mui/icons-material/School';
+import PeopleIcon from '@mui/icons-material/People';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
-const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Register Students', icon: <PeopleIcon />, path: '/students' },
-  { text: 'Register Lecturers', icon: <SchoolIcon />, path: '/lecturers' },
-];
-
-export default function Sidebar({ mobileOpen, handleDrawerToggle }) {
+const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const drawer = (
-    <div>
-      <Toolbar>
-        <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
-          uniKonet Admin
-        </Typography>
-      </Toolbar>
-      <Divider />
-      <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => {
-                navigate(item.path);
-                if (mobileOpen) handleDrawerToggle();
-              }}
-            >
-              <ListItemIcon sx={{ color: location.pathname === item.path ? '#1976d2' : 'inherit' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </div>
-  );
+  const menuItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { text: 'Students', icon: <PeopleIcon />, path: '/students' },
+    { text: 'Lecturers', icon: <SchoolIcon />, path: '/lecturers' },
+  ];
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
-    <Box
-      component="nav"
-      sx={{ width: { sm: 240 }, flexShrink: { sm: 0 } }}
-      aria-label="mailbox folders"
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: drawerWidth,
+        flexShrink: 0,
+        [`& .MuiDrawer-paper`]: {
+          width: drawerWidth,
+          boxSizing: 'border-box',
+          backgroundColor: '#1E1E2D',
+          color: '#ffffff',
+          borderRight: 'none'
+        },
+      }}
     >
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-        }}
-      >
-        {drawer}
-      </Drawer>
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-        }}
-        open
-      >
-        {drawer}
-      </Drawer>
-    </Box>
+      <Toolbar sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 2
+      }}>
+        <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#6C63FF', letterSpacing: 1 }}>
+          uni<span style={{ color: '#fff' }}>Konet</span>
+        </Typography>
+      </Toolbar>
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+
+      {/* User Profile Summary */}
+      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+        <Avatar sx={{ bgcolor: '#6C63FF' }}>
+          <AccountCircleIcon />
+        </Avatar>
+        <Box>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Admin User</Typography>
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>Administrator</Typography>
+        </Box>
+      </Box>
+
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', mb: 2 }} />
+
+      <Box sx={{ overflow: 'auto', px: 2 }}>
+        <List>
+          {menuItems.map((item) => (
+            <ListItem
+              button
+              key={item.text}
+              onClick={() => navigate(item.path)}
+              selected={location.pathname === item.path}
+              sx={{
+                borderRadius: 2,
+                mb: 1,
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(108, 99, 255, 0.2)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(108, 99, 255, 0.3)',
+                  }
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                }
+              }}
+            >
+              <ListItemIcon sx={{ color: location.pathname === item.path ? '#6C63FF' : 'rgba(255,255,255,0.7)' }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                primaryTypographyProps={{
+                  sx: {
+                    fontWeight: location.pathname === item.path ? 'bold' : 'normal',
+                    color: location.pathname === item.path ? '#ffffff' : 'rgba(255,255,255,0.7)'
+                  }
+                }}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+
+      <Box sx={{ mt: 'auto', p: 2 }}>
+        <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', mb: 2 }} />
+        <List>
+          <ListItem
+            button
+            onClick={handleLogout}
+            sx={{
+              borderRadius: 2,
+              color: '#FF6B6B',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+              }
+            }}
+          >
+            <ListItemIcon sx={{ color: '#FF6B6B' }}><LogoutIcon /></ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItem>
+        </List>
+      </Box>
+    </Drawer>
   );
-}
+};
+
+export default Sidebar;
