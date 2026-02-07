@@ -22,6 +22,9 @@ export default function Dashboard() {
             <Typography variant="h4" gutterBottom>
                 Dashboard Overview
             </Typography>
+            <Typography variant="subtitle1" gutterBottom sx={{ mb: 4, color: 'text.secondary' }}>
+                Welcome to uniKonet Admin Dashboard
+            </Typography>
 
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid item xs={12} sm={6} md={3}>
