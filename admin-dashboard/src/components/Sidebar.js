@@ -16,6 +16,8 @@ import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import BookIcon from '@mui/icons-material/Book';
+import CampaignIcon from '@mui/icons-material/Campaign';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidth = 260;
@@ -28,6 +30,8 @@ const Sidebar = () => {
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Students', icon: <PeopleIcon />, path: '/students' },
     { text: 'Lecturers', icon: <SchoolIcon />, path: '/lecturers' },
+    { text: 'Courses', icon: <BookIcon />, path: '/courses' },
+    { text: 'Announcements', icon: <CampaignIcon />, path: '/announcements' },
   ];
 
   const handleLogout = () => {

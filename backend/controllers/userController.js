@@ -4,7 +4,12 @@ const User = require('../models/User');
 // @route   POST /api/users
 // @access  Private/Admin
 const registerUser = async (req, res) => {
-    const { name, email, role, programme, department } = req.body;
+    const {
+        name, email, role,
+        programme, department,
+        studentId, level, admissionDate,
+        staffId, rank
+    } = req.body;
 
     const userExists = await User.findOne({ email });
 
@@ -21,8 +26,16 @@ const registerUser = async (req, res) => {
         email,
         password,
         role,
+        // Student Fields
         programme: role === 'student' ? programme : undefined,
-        department: role === 'lecturer' ? department : undefined,
+        studentId: role === 'student' ? studentId : undefined,
+        level: role === 'student' ? level : undefined,
+        admissionDate: role === 'student' ? (admissionDate || new Date()) : undefined,
+
+        // Staff/Lecturer Fields
+        department: (role === 'lecturer' || role === 'staff') ? department : undefined,
+        staffId: (role === 'lecturer' || role === 'staff') ? staffId : undefined,
+        rank: (role === 'lecturer' || role === 'staff') ? rank : undefined,
     });
 
     if (user) {

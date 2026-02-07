@@ -15,17 +15,35 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    // Common Fields
     role: {
         type: String,
-        enum: ['admin', 'student', 'lecturer'],
+        enum: ['admin', 'student', 'lecturer', 'staff'],
         required: true,
     },
-    programme: {
-        type: String, // For students
+    // Student Specific Fields
+    studentId: { type: String, unique: true, sparse: true }, // Index Number
+    programme: { type: String },
+    faculty: { type: String },
+    department: { type: String }, // Explicitly adding department for consistency
+    level: { type: String, enum: ['100', '200', '300', '400'] },
+    admissionDate: { type: Date },
+    studentStatus: {
+        type: String,
+        enum: ['Active', 'Deferred', 'Withdrawn', 'Graduated'],
+        default: 'Active'
     },
-    department: {
-        type: String, // For lecturers
+
+    // Lecturer/Staff Specific Fields
+    staffId: { type: String, unique: true, sparse: true },
+    department: { type: String },
+    rank: { type: String }, // e.g. Senior Lecturer, Professor
+    staffStatus: {
+        type: String,
+        enum: ['Active', 'On Leave', 'Retired', 'Suspended'],
+        default: 'Active'
     },
+
     isDefaultPassword: {
         type: Boolean,
         default: true,

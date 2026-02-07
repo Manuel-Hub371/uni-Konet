@@ -27,7 +27,12 @@ app.get('/', (req, res) => {
 
 // Import Routes
 const userRoutes = require('./routes/userRoutes');
+const courseRoutes = require('./routes/courseRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
+
 app.use('/api/users', userRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

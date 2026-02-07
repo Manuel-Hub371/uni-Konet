@@ -21,23 +21,21 @@ import {
     DialogActions,
     InputAdornment,
     IconButton,
-    Avatar
+    Avatar,
+    Chip
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CloseIcon from '@mui/icons-material/Close';
 import api from '../services/api';
+import { facultyData } from '../utils/facultyData';
 
-const programmes = [
-    'Computer Science',
-    'Information Technology',
-    'Computer Engineering',
-    'Electrical Engineering',
-    'Mechanical Engineering',
-    'Business Administration',
-    'Accounting'
-];
+// const programmes = [...]; // Removed in favor of facultyData
+
+const levels = ['100', '200', '300', '400'];
+
+const studentStatuses = ['Active', 'Deferred', 'Withdrawn', 'Graduated'];
 
 export default function ManageStudents() {
     const [students, setStudents] = useState([]);
@@ -48,7 +46,12 @@ export default function ManageStudents() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        programme: ''
+        programme: '',
+        faculty: '',
+        studentId: '',
+        level: '100',
+        admissionDate: new Date().toISOString().split('T')[0],
+        studentStatus: 'Active'
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -64,7 +67,8 @@ export default function ManageStudents() {
         const filtered = students.filter(student =>
             student.name.toLowerCase().includes(lowercasedFilter) ||
             student.email.toLowerCase().includes(lowercasedFilter) ||
-            student.programme.toLowerCase().includes(lowercasedFilter)
+            student.programme.toLowerCase().includes(lowercasedFilter) ||
+            (student.studentId && student.studentId.toLowerCase().includes(lowercasedFilter))
         );
         setFilteredStudents(filtered);
     }, [searchTerm, students]);
@@ -91,7 +95,12 @@ export default function ManageStudents() {
         setOpen(false);
         setError('');
         setSuccess('');
-        setFormData({ name: '', email: '', programme: '' });
+        setFormData({
+            name: '', email: '', programme: '', faculty: '',
+            studentId: '', level: '100',
+            admissionDate: new Date().toISOString().split('T')[0],
+            studentStatus: 'Active'
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -123,6 +132,16 @@ export default function ManageStudents() {
         }
     };
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Active': return 'success';
+            case 'Deferred': return 'warning';
+            case 'Withdrawn': return 'error';
+            case 'Graduated': return 'info';
+            default: return 'default';
+        }
+    };
+
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -131,7 +150,7 @@ export default function ManageStudents() {
                         Students
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                        Manage all registered students here.
+                        Manage admissions, records, and student statuses.
                     </Typography>
                 </Box>
                 <Button
@@ -165,7 +184,7 @@ export default function ManageStudents() {
                 }}
             >
                 <TextField
-                    placeholder="Search by name, email, or programme..."
+                    placeholder="Search by name, ID, email, or programme..."
                     variant="outlined"
                     size="small"
                     fullWidth
@@ -200,9 +219,9 @@ export default function ManageStudents() {
                 <Table>
                     <TableHead>
                         <TableRow sx={{ bgcolor: '#F7FAFC' }}>
-                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Name</TableCell>
-                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Email</TableCell>
-                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Programme</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Name & ID</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Details</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Level</TableCell>
                             <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Status</TableCell>
                         </TableRow>
                     </TableHead>
@@ -227,15 +246,23 @@ export default function ManageStudents() {
                                 >
                                     <TableCell>
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                            <Avatar sx={{ width: 32, height: 32, mr: 2, bgcolor: '#6C63FF', fontSize: 14 }}>
+                                            <Avatar sx={{ width: 40, height: 40, mr: 2, bgcolor: '#6C63FF', fontSize: 16 }}>
                                                 {student.name.charAt(0)}
                                             </Avatar>
-                                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                                {student.name}
-                                            </Typography>
+                                            <Box>
+                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                    {student.name}
+                                                </Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    ID: {student.studentId || 'N/A'}
+                                                </Typography>
+                                            </Box>
                                         </Box>
                                     </TableCell>
-                                    <TableCell>{student.email}</TableCell>
+                                    <TableCell>
+                                        <Typography variant="body2">{student.email}</Typography>
+                                        <Typography variant="caption" color="textSecondary">{student.programme}</Typography>
+                                    </TableCell>
                                     <TableCell>
                                         <Box
                                             sx={{
@@ -249,22 +276,16 @@ export default function ManageStudents() {
                                                 fontWeight: 600
                                             }}
                                         >
-                                            {student.programme}
+                                            Lvl {student.level || '100'}
                                         </Box>
                                     </TableCell>
                                     <TableCell>
-                                        <Box
-                                            component="span"
-                                            sx={{
-                                                width: 8,
-                                                height: 8,
-                                                borderRadius: '50%',
-                                                bgcolor: '#48BB78',
-                                                display: 'inline-block',
-                                                mr: 1
-                                            }}
+                                        <Chip
+                                            label={student.studentStatus || 'Active'}
+                                            size="small"
+                                            color={getStatusColor(student.studentStatus)}
+                                            variant="outlined"
                                         />
-                                        Active
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -287,6 +308,32 @@ export default function ManageStudents() {
                         {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
                         <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Student ID (Index No.)"
+                                    name="studentId"
+                                    value={formData.studentId}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                    placeholder="e.g. 04/2023/001"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Level"
+                                    name="level"
+                                    value={formData.level}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                >
+                                    {levels.map((lvl) => (
+                                        <MenuItem key={lvl} value={lvl}>{lvl}</MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
                             <Grid item xs={12}>
                                 <TextField
                                     fullWidth
@@ -315,17 +362,64 @@ export default function ManageStudents() {
                                 <TextField
                                     fullWidth
                                     select
-                                    label="Programme"
-                                    name="programme"
-                                    value={formData.programme}
-                                    onChange={handleChange}
-                                    required
+                                    label="Faculty"
+                                    name="faculty"
+                                    value={formData.faculty || ''}
+                                    onChange={(e) => {
+                                        setFormData({
+                                            ...formData,
+                                            faculty: e.target.value,
+                                            department: '',
+                                            programme: '' // Clear programme as it depends on department
+                                        });
+                                    }}
                                     variant="outlined"
                                 >
-                                    {programmes.map((prog) => (
-                                        <MenuItem key={prog} value={prog}>
-                                            {prog}
-                                        </MenuItem>
+                                    {Object.keys(facultyData).map((faculty) => (
+                                        <MenuItem key={faculty} value={faculty}>{faculty}</MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Department / Programme"
+                                    name="programme" // keeping name as 'programme' for student model consistency, but UI says Dept
+                                    value={formData.programme || ''}
+                                    onChange={handleChange}
+                                    disabled={!formData.faculty}
+                                    variant="outlined"
+                                >
+                                    {formData.faculty && facultyData[formData.faculty].map((dept) => (
+                                        <MenuItem key={dept} value={dept}>{dept}</MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Admission Date"
+                                    name="admissionDate"
+                                    type="date"
+                                    value={formData.admissionDate}
+                                    onChange={handleChange}
+                                    InputLabelProps={{ shrink: true }}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Status"
+                                    name="studentStatus"
+                                    value={formData.studentStatus}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                >
+                                    {studentStatuses.map((status) => (
+                                        <MenuItem key={status} value={status}>{status}</MenuItem>
                                     ))}
                                 </TextField>
                             </Grid>

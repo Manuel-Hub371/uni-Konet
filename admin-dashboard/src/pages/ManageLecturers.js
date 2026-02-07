@@ -21,23 +21,20 @@ import {
     DialogActions,
     InputAdornment,
     IconButton,
-    Avatar
+    Avatar,
+    Chip
 } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CloseIcon from '@mui/icons-material/Close';
 import api from '../services/api';
+import { facultyData } from '../utils/facultyData';
 
-const departments = [
-    'Computer Science',
-    'Information Technology',
-    'Mathematics',
-    'Physics',
-    'Biology',
-    'Business',
-    'Liberal Studies'
-];
+// const departments = [...]; // Removed in favor of facultyData
+
+const ranks = ['Assistant Lecturer', 'Lecturer', 'Senior Lecturer', 'Associate Professor', 'Professor'];
+const statuses = ['Active', 'On Leave', 'Retired', 'Suspended'];
 
 export default function ManageLecturers() {
     const [lecturers, setLecturers] = useState([]);
@@ -48,7 +45,11 @@ export default function ManageLecturers() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        department: ''
+        department: '',
+        faculty: '',
+        staffId: '',
+        rank: 'Lecturer',
+        staffStatus: 'Active'
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -60,11 +61,13 @@ export default function ManageLecturers() {
     }, []);
 
     useEffect(() => {
+        // Search and filter logic
         const lowercasedFilter = searchTerm.toLowerCase();
         const filtered = lecturers.filter(lecturer =>
             lecturer.name.toLowerCase().includes(lowercasedFilter) ||
             lecturer.email.toLowerCase().includes(lowercasedFilter) ||
-            lecturer.department.toLowerCase().includes(lowercasedFilter)
+            (lecturer.faculty && lecturer.faculty.toLowerCase().includes(lowercasedFilter)) ||
+            (lecturer.staffId && lecturer.staffId.toLowerCase().includes(lowercasedFilter))
         );
         setFilteredLecturers(filtered);
     }, [searchTerm, lecturers]);
@@ -91,7 +94,10 @@ export default function ManageLecturers() {
         setOpen(false);
         setError('');
         setSuccess('');
-        setFormData({ name: '', email: '', department: '' });
+        setFormData({
+            name: '', email: '', department: '', faculty: '',
+            staffId: '', rank: 'Lecturer', staffStatus: 'Active'
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -123,6 +129,16 @@ export default function ManageLecturers() {
         }
     };
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Active': return 'success';
+            case 'On Leave': return 'warning';
+            case 'Retired': return 'default';
+            case 'Suspended': return 'error';
+            default: return 'default';
+        }
+    };
+
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -131,7 +147,7 @@ export default function ManageLecturers() {
                         Lecturers
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                        Manage all registered lecturers here.
+                        Manage staff records, roles, and status.
                     </Typography>
                 </Box>
                 <Button
@@ -165,7 +181,7 @@ export default function ManageLecturers() {
                 }}
             >
                 <TextField
-                    placeholder="Search by name, email, or department..."
+                    placeholder="Search by name, ID, email, or faculty..."
                     variant="outlined"
                     size="small"
                     fullWidth
@@ -200,9 +216,9 @@ export default function ManageLecturers() {
                 <Table>
                     <TableHead>
                         <TableRow sx={{ bgcolor: '#F7FAFC' }}>
-                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Name</TableCell>
-                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Email</TableCell>
-                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Department</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Name & ID</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Details</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Faculty</TableCell>
                             <TableCell sx={{ fontWeight: 600, color: '#4A5568' }}>Status</TableCell>
                         </TableRow>
                     </TableHead>
@@ -227,15 +243,23 @@ export default function ManageLecturers() {
                                 >
                                     <TableCell>
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                            <Avatar sx={{ width: 32, height: 32, mr: 2, bgcolor: '#FF6B6B', fontSize: 14 }}>
+                                            <Avatar sx={{ width: 40, height: 40, mr: 2, bgcolor: '#FF6B6B', fontSize: 16 }}>
                                                 {lecturer.name.charAt(0)}
                                             </Avatar>
-                                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                                {lecturer.name}
-                                            </Typography>
+                                            <Box>
+                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                    {lecturer.name}
+                                                </Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    ID: {lecturer.staffId || 'N/A'}
+                                                </Typography>
+                                            </Box>
                                         </Box>
                                     </TableCell>
-                                    <TableCell>{lecturer.email}</TableCell>
+                                    <TableCell>
+                                        <Typography variant="body2">{lecturer.email}</Typography>
+                                        <Typography variant="caption" color="textSecondary">{lecturer.rank}</Typography>
+                                    </TableCell>
                                     <TableCell>
                                         <Box
                                             sx={{
@@ -249,22 +273,16 @@ export default function ManageLecturers() {
                                                 fontWeight: 600
                                             }}
                                         >
-                                            {lecturer.department}
+                                            {lecturer.faculty || 'Unassigned'}
                                         </Box>
                                     </TableCell>
                                     <TableCell>
-                                        <Box
-                                            component="span"
-                                            sx={{
-                                                width: 8,
-                                                height: 8,
-                                                borderRadius: '50%',
-                                                bgcolor: '#48BB78',
-                                                display: 'inline-block',
-                                                mr: 1
-                                            }}
+                                        <Chip
+                                            label={lecturer.staffStatus || 'Active'}
+                                            size="small"
+                                            color={getStatusColor(lecturer.staffStatus)}
+                                            variant="outlined"
                                         />
-                                        Active
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -287,6 +305,32 @@ export default function ManageLecturers() {
                         {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
                         <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Staff ID"
+                                    name="staffId"
+                                    value={formData.staffId}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                    placeholder="e.g. SF001"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Rank"
+                                    name="rank"
+                                    value={formData.rank}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                >
+                                    {ranks.map((r) => (
+                                        <MenuItem key={r} value={r}>{r}</MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
                             <Grid item xs={12}>
                                 <TextField
                                     fullWidth
@@ -315,17 +359,30 @@ export default function ManageLecturers() {
                                 <TextField
                                     fullWidth
                                     select
-                                    label="Department"
-                                    name="department"
-                                    value={formData.department}
+                                    label="Faculty"
+                                    name="faculty"
+                                    value={formData.faculty || ''}
                                     onChange={handleChange}
+                                    variant="outlined"
                                     required
+                                >
+                                    {Object.keys(facultyData).map((faculty) => (
+                                        <MenuItem key={faculty} value={faculty}>{faculty}</MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Status"
+                                    name="staffStatus"
+                                    value={formData.staffStatus}
+                                    onChange={handleChange}
                                     variant="outlined"
                                 >
-                                    {departments.map((dept) => (
-                                        <MenuItem key={dept} value={dept}>
-                                            {dept}
-                                        </MenuItem>
+                                    {statuses.map((status) => (
+                                        <MenuItem key={status} value={status}>{status}</MenuItem>
                                     ))}
                                 </TextField>
                             </Grid>

@@ -4,6 +4,8 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import ManageStudents from './pages/ManageStudents';
 import ManageLecturers from './pages/ManageLecturers';
+import ManageCourses from './pages/ManageCourses';
+import Announcements from './pages/Announcements';
 import Login from './pages/Login';
 
 function App() {
@@ -62,6 +64,30 @@ function App() {
                         isAuthenticated ? (
                             <Layout>
                                 <ManageLecturers />
+                            </Layout>
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/courses"
+                    element={
+                        isAuthenticated ? (
+                            <Layout>
+                                <ManageCourses />
+                            </Layout>
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/announcements"
+                    element={
+                        isAuthenticated ? (
+                            <Layout>
+                                <Announcements />
                             </Layout>
                         ) : (
                             <Navigate to="/login" replace />
