@@ -22,11 +22,17 @@ A premium, pixel-perfect web interface built with **React** and **Vite 8**.
 
 - **Modular UI Component Library**: Custom-built, reusable widgets located in `src/components/dashboard/`:
     - `StatCard`, `StudentTable`, `AdmissionsOverview`, `Announcements`, `ClassSchedule`.
-- **Advanced Layout**:
-    - **Dark Slate Sidebar (`#1e293b`)**: Modern, high-contrast navigation with circular branding and blue active states.
-    - **White Utility Header**: Sticky header with search, notifications, and profile management.
-- **Routing**: Clean separation of feature pages (Students, Lecturers, Admissions) within the `src/pages/` directory.
-- **API Interceptors**: Global Axios instance with automatic token attachment and centralized error handling in `services/api.js`.
+- **Admissions Module (Command Center)**:
+    - **Intake Cycle Management**: Supports multiple academic cycles (e.g., 2024, 2025 Intake) with "Open/Closed" states.
+    - **Interactive Flow**: Automated stats filtering and safe-guard "Cycle Closure" workflows.
+- **Student Management Module (Lifecycle & Progression)**:
+    - **Lifecycle Dashboard**: Real-time tracking of Active, Graduated, Suspended, and Dismissed students.
+    - **Academic Timeline**: Visual progression tracker (Level 100 → 400) that reflects institutional rules like level freezing during suspension.
+    - **Deep-Profile Intelligence**: Sectionalized views for Personal Info, Academic Records, Course Registry, and Results (GPA).
+- **Premium UI/UX Philosophy**:
+    - **"Premium Modern" Look**: Modern glassmorphism (`backdrop-blur`), vibrant blue accents, and high-fidelity typography.
+    - **Micro-interactions**: Subtle entrance animations (`duration-700`), hover lifts, and status "pings" for a responsive feel.
+    - **Clean Hierarchy**: Logical grouping of filters, stats, and data tables for maximum administrative efficiency.
 
 ## 3. Desktop Application (`/electron`) [ARCHIVED - Optional]
 The admin dashboard is capable of running as a native desktop app.
