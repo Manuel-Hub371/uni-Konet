@@ -24,7 +24,7 @@ import AdmissionsOverview from './components/dashboard/AdmissionsOverview';
 import Announcements from './components/dashboard/Announcements';
 import ClassSchedule from './components/dashboard/ClassSchedule';
 
-import StudentsPage from './pages/Students';
+import StudentsPage from './pages/Dashboard/Students';
 import LecturersPage from './pages/Lecturers';
 import AdmissionsPage from './pages/Dashboard/Admissions';
 
