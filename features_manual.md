@@ -22,6 +22,10 @@ A premium, pixel-perfect web interface built with **React** and **Vite 8**.
 
 - **Modular UI Component Library**: Custom-built, reusable widgets located in `src/components/dashboard/`:
     - `StatCard`, `StudentTable`, `AdmissionsOverview`, `Announcements`, `ClassSchedule`.
+- **Lecturer Management Module (Faculty & Curriculum)**:
+    - **Faculty Registry**: Tracks the status and department-wise allocation of all university faculty members.
+    - **Workload Monitoring**: Intelligent "Overloaded" badges that flag faculty members with high course assignments.
+    - **Professional Actions**: Integrated View/Edit/Suspend/Reactivate workflows for efficient faculty administration.
 - **Admissions Module (Command Center)**:
     - **Intake Cycle Management**: Supports multiple academic cycles (e.g., 2024, 2025 Intake) with "Open/Closed" states.
     - **Interactive Flow**: Automated stats filtering and safe-guard "Cycle Closure" workflows.

@@ -25,7 +25,7 @@ import Announcements from './components/dashboard/Announcements';
 import ClassSchedule from './components/dashboard/ClassSchedule';
 
 import StudentsPage from './pages/Dashboard/Students';
-import LecturersPage from './pages/Lecturers';
+import LecturersPage from './pages/Dashboard/Lecturers';
 import AdmissionsPage from './pages/Dashboard/Admissions';
 
 const Dashboard = () => (
