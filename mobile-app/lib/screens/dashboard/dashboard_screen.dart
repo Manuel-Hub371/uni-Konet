@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_bottom_nav.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -8,6 +9,7 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Stat Dashboard')),
       body: const Center(child: Text('Performance & Stats Placeholder')),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 3),
     );
   }
 }

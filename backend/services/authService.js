@@ -1,18 +1,19 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/userRepository');
 
 class AuthService {
     async login(email, password) {
         const user = await userRepository.findByEmail(email);
-        if (user && (await user.comparePassword(password))) {
+        if (user && (await bcrypt.compare(password, user.password))) {
             return {
-                _id: user._id,
+                _id: user.id, // Prisma uses 'id', not '_id'
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
                 role: user.role,
                 universityId: user.universityId,
-                token: this.generateToken(user._id)
+                token: this.generateToken(user.id)
             };
         }
         throw new Error('Invalid email or password');
@@ -29,6 +30,11 @@ class AuthService {
         if (userExists) {
             throw new Error('User already exists');
         }
+        
+        // Hash password before creating
+        const salt = await bcrypt.genSalt(10);
+        userData.password = await bcrypt.hash(userData.password, salt);
+        
         return await userRepository.create(userData);
     }
 }

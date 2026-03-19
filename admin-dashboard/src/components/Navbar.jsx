@@ -1,30 +1,31 @@
-import React from 'react';
-import { Bell, Search, LogOut } from 'lucide-react';
+import { Bell, Settings, BadgeCheck } from 'lucide-react';
 
 const Navbar = () => {
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
-      <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg w-full max-w-md">
-        <Search size={18} className="text-slate-400" />
-        <input 
-          type="text" 
-          placeholder="Search something..." 
-          className="bg-transparent border-none outline-none text-sm text-slate-600 w-full"
-        />
-      </div>
+    <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-8 sticky top-0 z-10 shadow-sm">
+      <h2 className="text-xl font-bold text-slate-800 tracking-tight">Dashboard</h2>
 
-      <div className="flex items-center gap-6">
-        <button className="relative p-2 text-slate-500 hover:bg-slate-50 rounded-lg transition-all">
+      <div className="flex items-center gap-5">
+        <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-all">
           <Bell size={20} />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+        </button>
+        <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-all">
+          <Settings size={20} />
+        </button>
+        <button className="relative p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-all">
+          <BadgeCheck size={20} />
+          <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-[10px] text-white rounded-full flex items-center justify-center font-bold border-2 border-white">4</span>
         </button>
         
-        <div className="h-8 w-px bg-slate-200 mx-1"></div>
-        
-        <button className="flex items-center gap-2 p-2 px-3 text-red-600 hover:bg-red-50 rounded-lg transition-all font-medium text-sm">
-          <LogOut size={18} />
-          <span>Logout</span>
-        </button>
+        <div className="flex items-center gap-3 pl-2">
+          <div className="w-9 h-9 rounded-full bg-slate-200 border border-slate-100 overflow-hidden">
+            <img 
+              src="https://randomuser.me/api/portraits/men/32.jpg" 
+              alt="Profile" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
       </div>
     </header>
   );

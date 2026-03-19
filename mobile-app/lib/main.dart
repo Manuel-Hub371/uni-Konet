@@ -7,6 +7,8 @@ import 'screens/post/post_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/notifications/notification_screen.dart';
+import 'screens/forgot_password/forgot_password_screen.dart';
+import 'screens/role_selection/role_selection_screen.dart';
 
 void main() {
   runApp(const UniKonetApp());
@@ -23,8 +25,9 @@ class UniKonetApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      initialRoute: '/login',
+      initialRoute: '/role-selection',
       routes: {
+        '/role-selection': (context) => const RoleSelectionScreen(),
         '/login': (context) => const LoginScreen(),
         '/change-password': (context) => const ChangePasswordScreen(),
         '/main': (context) => const MainScreen(),
@@ -33,6 +36,7 @@ class UniKonetApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/notifications': (context) => const NotificationScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
     );
   }

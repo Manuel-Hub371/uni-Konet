@@ -1,41 +1,77 @@
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { 
+  Users, 
+  GraduationCap, 
+  BookOpen, 
+  Wallet, 
+  BarChart3, 
+  Plus, 
+  Search,
+  MoreVertical,
+  Calendar,
+  Clock,
+  MapPin,
+  ExternalLink,
+  ChevronRight,
+  ClipboardList
+} from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 
-// Pages - These will be created next
-const Dashboard = () => <div className="p-6 h-full w-full bg-white rounded-xl shadow-sm border border-slate-100"><h1 className="text-2xl font-bold text-slate-800">Dashboard</h1><p className="text-slate-500 mt-2">Welcome to UniKonet Admin Panel.</p></div>;
-const Students = () => <div className="p-6 h-full w-full bg-white rounded-xl shadow-sm border border-slate-100"><h1 className="text-2xl font-bold text-slate-800">Students</h1></div>;
-const Lecturers = () => <div className="p-6 h-full w-full bg-white rounded-xl shadow-sm border border-slate-100"><h1 className="text-2xl font-bold text-slate-800">Lecturers</h1></div>;
-const Departments = () => <div className="p-6 h-full w-full bg-white rounded-xl shadow-sm border border-slate-100"><h1 className="text-2xl font-bold text-slate-800">Departments</h1></div>;
-const Courses = () => <div className="p-6 h-full w-full bg-white rounded-xl shadow-sm border border-slate-100"><h1 className="text-2xl font-bold text-slate-800">Courses</h1></div>;
-const Finance = () => <div className="p-6 h-full w-full bg-white rounded-xl shadow-sm border border-slate-100"><h1 className="text-2xl font-bold text-slate-800">Finance</h1></div>;
-const Reports = () => <div className="p-6 h-full w-full bg-white rounded-xl shadow-sm border border-slate-100"><h1 className="text-2xl font-bold text-slate-800">Reports</h1></div>;
+import StatCard from './components/dashboard/StatCard';
+import StudentTable from './components/dashboard/StudentTable';
+import AdmissionsOverview from './components/dashboard/AdmissionsOverview';
+import Announcements from './components/dashboard/Announcements';
+import ClassSchedule from './components/dashboard/ClassSchedule';
 
-const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem('token');
-  // return isAuthenticated ? children : <Navigate to="/login" />;
-  // For initial dev, let's allow all
-  return children;
-};
+import StudentsPage from './pages/Students';
+import LecturersPage from './pages/Lecturers';
+import AdmissionsPage from './pages/Dashboard/Admissions';
+
+const Dashboard = () => (
+  <div className="space-y-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <StatCard title="Total Students" value="4,520" icon={Users} />
+      <StatCard title="Total Lecturers" value="180" icon={GraduationCap} />
+      <StatCard title="Pending Applications" value="32" icon={ClipboardList} />
+      <StatCard title="Courses Offered" value="120" icon={BookOpen} />
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2">
+        <StudentTable />
+      </div>
+      <div>
+        <AdmissionsOverview />
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <ClassSchedule />
+      <Announcements />
+    </div>
+  </div>
+);
+
+const ProtectedRoute = ({ children }) => children;
+;
 
 function App() {
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Navbar />
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
-          <Routes>
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
-            <Route path="/lecturers" element={<ProtectedRoute><Lecturers /></ProtectedRoute>} />
-            <Route path="/departments" element={<ProtectedRoute><Departments /></ProtectedRoute>} />
-            <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-            <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
-            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+        <main className="flex-1 overflow-y-auto p-8 bg-[#f1f5f9]">
+          <div className="max-w-[1600px] mx-auto">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/students" element={<StudentsPage />} />
+              <Route path="/lecturers" element={<LecturersPage />} />
+              <Route path="/admissions" element={<AdmissionsPage />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </div>
         </main>
       </div>
     </div>

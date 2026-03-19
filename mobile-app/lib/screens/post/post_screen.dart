@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_bottom_nav.dart';
 
 class PostScreen extends StatelessWidget {
   const PostScreen({super.key});
@@ -14,6 +15,7 @@ class PostScreen extends StatelessWidget {
           decoration: InputDecoration(hintText: "What's on your mind?"),
         ),
       ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 2),
     );
   }
 }

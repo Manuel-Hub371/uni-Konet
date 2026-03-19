@@ -8,58 +8,71 @@ import {
   BookOpen, 
   Wallet, 
   BarChart3,
-  GraduationCap
+  GraduationCap,
+  ClipboardList,
+  Calendar,
+  CheckCircle2,
+  MessageSquare,
+  Settings,
+  LogOut,
+  ChevronRight,
+  UserPlus
 } from 'lucide-react';
 
 const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { name: 'Admissions', icon: UserPlus, path: '/admissions' },
     { name: 'Students', icon: Users, path: '/students' },
     { name: 'Lecturers', icon: UserSquare2, path: '/lecturers' },
-    { name: 'Departments', icon: Building2, path: '/departments' },
-    { name: 'Courses', icon: BookOpen, path: '/courses' },
+    { name: 'Academic', icon: GraduationCap, path: '/academic', hasSub: true },
+    { name: 'Enrollment', icon: ClipboardList, path: '/enrollment', hasSub: true },
+    { name: 'Timetable', icon: Calendar, path: '/timetable', hasSub: true },
+    { name: 'Results', icon: CheckCircle2, path: '/results', hasSub: true },
     { name: 'Finance', icon: Wallet, path: '/finance' },
-    { name: 'Reports', icon: BarChart3, path: '/reports' },
+    { name: 'Communication', icon: MessageSquare, path: '/communication', hasSub: true },
+    { name: 'Reports & Analytics', icon: BarChart3, path: '/reports', hasSub: true },
+    { name: 'System Management', icon: Settings, path: '/system' },
+    { name: 'Logout', icon: LogOut, path: '/logout' },
   ];
 
   return (
-    <div className="w-64 bg-slate-900 text-white flex flex-col transition-all duration-300">
-      <div className="p-6 flex items-center gap-3">
-        <div className="bg-primary-500 p-2 rounded-lg">
-          <GraduationCap size={24} />
+    <div className="w-80 bg-[#1e293b] text-slate-300 flex flex-col h-screen transition-all duration-300">
+      <div className="p-6 flex items-center gap-4">
+        <div className="bg-blue-600 p-2 rounded-full flex items-center justify-center">
+          <span className="text-white text-xl font-bold font-serif px-1.5">U</span>
         </div>
-        <h1 className="text-xl font-bold tracking-tight">UniKonet</h1>
+        <h1 className="text-xl font-bold tracking-tight text-white">
+          uniKonet
+        </h1>
       </div>
       
-      <nav className="flex-1 px-4 py-6 space-y-1">
+      <nav className="flex-1 px-0 py-4 overflow-y-auto custom-scrollbar">
         {menuItems.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
             className={({ isActive }) => `
-              flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all
+              flex items-center justify-between px-6 py-3.5 transition-all duration-200 group
               ${isActive 
-                ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20' 
-                : 'text-slate-400 hover:bg-slate-800 hover:text-white'}
+                ? 'bg-blue-600 text-white font-medium' 
+                : 'hover:bg-slate-800 hover:text-white'}
             `}
           >
-            <item.icon size={20} />
-            <span className="font-medium">{item.name}</span>
+            {({ isActive }) => (
+              <>
+                <div className="flex items-center gap-4">
+                  <item.icon size={20} className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'} />
+                  <span className="text-[15px]">{item.name}</span>
+                </div>
+                {item.hasSub && (
+                  <ChevronRight size={14} className={isActive ? 'text-white' : 'text-slate-500'} />
+                )}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
-      
-      <div className="p-4 border-t border-slate-800">
-        <div className="flex items-center gap-3 bg-slate-800 p-3 rounded-xl">
-          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs">
-            AD
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate text-white">Admin User</p>
-            <p className="text-xs text-slate-500 truncate">Super Admin</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

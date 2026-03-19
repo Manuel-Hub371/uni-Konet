@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_bottom_nav.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   const ChangePasswordScreen({super.key});
@@ -6,7 +7,10 @@ class ChangePasswordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Change Password')),
+      appBar: AppBar(
+        title: const Text('Change Password'),
+        automaticallyImplyLeading: false,
+      ),
       body: const Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -22,6 +26,7 @@ class ChangePasswordScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 0), // Defaulting to home or none? Usually 0 is Home.
     );
   }
 }

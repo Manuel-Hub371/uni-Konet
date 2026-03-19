@@ -1,0 +1,219 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN       @map("Super Admin")
+  UNIVERSITY_ADMIN  @map("University Admin")
+  LECTURER          @map("Lecturer")
+  STUDENT           @map("Student")
+}
+
+enum Status {
+  ACTIVE   @map("active")
+  INACTIVE @map("inactive")
+}
+
+enum Audience {
+  ALL       @map("All")
+  LECTURERS @map("Lecturers")
+  STUDENTS  @map("Students")
+}
+
+enum PaymentStatus {
+  PENDING   @map("pending")
+  COMPLETED @map("completed")
+  FAILED    @map("failed")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  firstName     String
+  lastName      String
+  email         String   @unique
+  password      String
+  role          Role
+  universityId  String?
+  university    University? @relation(fields: [universityId], references: [id])
+  phoneNumber   String?
+  profileImage  String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  student       Student?
+  lecturer      Lecturer?
+  announcements Announcement[]
+  departments   Department[]   @relation("HOD")
+
+  @@map("users")
+}
+
+model University {
+  id            String   @id @default(uuid())
+  name          String
+  code          String   @unique
+  address       String?
+  contactEmail  String
+  contactPhone  String?
+  logo          String?
+  status        Status   @default(ACTIVE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users         User[]
+  students      Student[]
+  lecturers     Lecturer[]
+  courses       Course[]
+  departments   Department[]
+  announcements Announcement[]
+  enrollments   Enrollment[]
+  results       Result[]
+  payments      Payment[]
+
+  @@map("universities")
+}
+
+model Department {
+  id                String   @id @default(uuid())
+  name              String
+  code              String
+  headOfDepartmentId String?
+  headOfDepartment  User?    @relation("HOD", fields: [headOfDepartmentId], references: [id])
+  universityId      String
+  university        University @relation(fields: [universityId], references: [id])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  students          Student[]
+  lecturers         Lecturer[]
+  courses           Course[]
+
+  @@map("departments")
+}
+
+model Student {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  studentId       String   @unique
+  departmentId    String
+  department      Department @relation(fields: [departmentId], references: [id])
+  enrollmentDate  DateTime @default(now())
+  currentSemester Int      @default(1)
+  universityId    String
+  university      University @relation(fields: [universityId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  enrollments     Enrollment[]
+  payments        Payment[]
+
+  @@map("students")
+}
+
+model Lecturer {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  employeeId    String   @unique
+  departmentId  String
+  department    Department @relation(fields: [departmentId], references: [id])
+  designation   String?
+  universityId  String
+  university    University @relation(fields: [universityId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("lecturers")
+}
+
+model Course {
+  id            String   @id @default(uuid())
+  name          String
+  code          String
+  credits       Int
+  departmentId  String
+  department    Department @relation(fields: [departmentId], references: [id])
+  universityId  String
+  university    University @relation(fields: [universityId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  enrollments   Enrollment[]
+
+  @@map("courses")
+}
+
+model Announcement {
+  id              String   @id @default(uuid())
+  title           String
+  content         String
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id])
+  targetAudience  Audience @default(ALL)
+  universityId    String
+  university      University @relation(fields: [universityId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("announcements")
+}
+
+model Enrollment {
+  id            String   @id @default(uuid())
+  studentId     String
+  student       Student  @relation(fields: [studentId], references: [id])
+  courseId      String
+  course        Course   @relation(fields: [courseId], references: [id])
+  semester      Int
+  academicYear  String
+  universityId  String
+  university    University @relation(fields: [universityId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  result        Result?
+
+  @@map("enrollments")
+}
+
+model Result {
+  id            String   @id @default(uuid())
+  enrollmentId  String   @unique
+  enrollment    Enrollment @relation(fields: [enrollmentId], references: [id])
+  grade         String
+  marks         Int
+  semester      Int
+  universityId  String
+  university    University @relation(fields: [universityId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("results")
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  studentId       String
+  student         Student  @relation(fields: [studentId], references: [id])
+  amount          Float
+  date            DateTime @default(now())
+  status          PaymentStatus @default(PENDING)
+  paymentMethod   String?
+  reference       String
+  universityId    String
+  university      University @relation(fields: [universityId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("payments")
+}
